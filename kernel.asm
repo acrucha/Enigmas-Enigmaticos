@@ -131,7 +131,7 @@ tostring:              ; mov ax, int / mov di, string, transforma o valor em ax 
     .endloop:
     ret
 
-clear:                   ; mov bl, color
+clear:                  ; mov bl, color
   ; set the cursor to top left-most corner of screen
   mov dx, 0 
   mov bh, 0      
