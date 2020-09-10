@@ -39,7 +39,7 @@ reverse:              ; mov si, string , pega a string apontada por si e a rever
   .loop1:             ; botar string na stack
     lodsb             ; teste
     cmp al, 0         ; oi oi  oi
-    je .endloop1      ; KITEI iiiiiii
+    je .endloop1      ; KITEI iiiiiii acruchi oioi
     inc cl
     push ax
     jmp .loop1
