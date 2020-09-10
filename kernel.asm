@@ -37,9 +37,9 @@ reverse:              ; mov si, string , pega a string apontada por si e a rever
   mov di, si
   xor cx, cx          ; zerar contador
   .loop1:             ; botar string na stack
-    lodsb
-    cmp al, 0
-    je .endloop1
+    lodsb             ; teste
+    cmp al, 0         ; oi oi  oi
+    je .endloop1      ; KITEI 
     inc cl
     push ax
     jmp .loop1
