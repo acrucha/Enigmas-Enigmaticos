@@ -3,6 +3,7 @@ jmp 0x0000:start
 ;se eu kitar disso vc pode crer que fodeu !!!!!!!!1
 ;oi milets
 ;finalmente cheguei
+; Hello my friend
 data:
     mensagem db 'Informe o valor de X entre 1 e 1000',0
     string times 20 db 0
