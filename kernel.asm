@@ -33,13 +33,13 @@ endl:       ;Pula uma linha, printando na tela o caractere que representa o /n
   call putchar
   ret
 
-reverse:              ; mov si, string , pega a string apontada por si e a reverte 
+reverse:              ; mov si, string , pega a string apontada por si e a reverte KKKKKKKKKKKKKKKK
   mov di, si
   xor cx, cx          ; zerar contador
   .loop1:             ; botar string na stack
     lodsb             ; teste
-    cmp al, 0         ; oi oi  oi
-    je .endloop1      ; KITEI iiiiiii acruchi oioi
+    cmp al, 0         ; oi oi  oi oioioioioioio
+    je .endloop1
     inc cl
     push ax
     jmp .loop1
