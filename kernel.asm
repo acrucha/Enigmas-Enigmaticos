@@ -1,9 +1,17 @@
 org 0x7e00
 jmp 0x0000:start
+<<<<<<< HEAD
 ;se eu kitar disso vc pode cerer que fodeu 
 ;oi milets
 ;finalmente cheguei
 ; Hello my friend
+=======
+;se eu kitar disso vc pode crer que fodeu !!!!!!!!1
+;oi milets
+;finalmente cheguei
+; Hello my friend
+;oi tenho que sair 
+>>>>>>> 082798742d8a2e8a8b4c17f49dae0dd2c95b2bb0
 data:
     mensagem db 'Informe o valor de X entre 1 e 1000',0
     string times 20 db 0
