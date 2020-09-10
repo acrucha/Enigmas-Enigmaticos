@@ -4,7 +4,7 @@ jmp 0x0000:start
 ;oi milets
 ;finalmente cheguei
 ; Hello my friend
-:oi tenho que sair 
+;oi tenho que sair 
 data:
     mensagem db 'Informe o valor de X entre 1 e 1000',0
     string times 20 db 0
