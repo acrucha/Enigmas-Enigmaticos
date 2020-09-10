@@ -1,12 +1,9 @@
 org 0x7e00
 jmp 0x0000:start
-<<<<<<< HEAD
 ;se eu kitar disso vc pode cerer que fodeu 
 ;oi milets
 ;finalmente cheguei
-=======
 ; Hello my friend
->>>>>>> 059390eefab5510ecb09909305e1e2a420915c44
 data:
     mensagem db 'Informe o valor de X entre 1 e 1000',0
     string times 20 db 0
