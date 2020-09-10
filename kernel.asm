@@ -1,6 +1,6 @@
 org 0x7e00
 jmp 0x0000:start
-;se eu kitar disso vc pode cerer que fodeu 
+;se eu kitar disso vc pode crer que fodeu !!!!!!!!1
 ;oi milets
 ;finalmente cheguei
 data:
