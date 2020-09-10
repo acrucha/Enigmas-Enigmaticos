@@ -1,6 +1,7 @@
 org 0x7e00
 jmp 0x0000:start
 ;se eu kitar disso vc pode cerer que fodeu 
+;oi milets
 data:
     mensagem db 'Informe o valor de X entre 1 e 1000',0
     string times 20 db 0
