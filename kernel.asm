@@ -3,17 +3,31 @@ jmp 0x0000:start
 
 data:
 	
-	;Dados do projeto... (onde ficam as declaracoes de variaveis)
+	resposta times 20 db 0 ;declarei a string q vai ser a resposta do cara
+    
+    ;tela inicial
     titulo db 'Enigmas Enigmaticos', 0
-    enig1 db 'j_mamjjasond first', 0
-    resposta1 db 'f', 0
+    ;tela 1 enigma
+    enig1 db 'j_mamjjasond', 0
+    solucaoEnig1 db 'fevereiro', 0
+    ;tela venceu
     tela_venceu db 'CONGRATULATIONS! :)', 0
+    ;tela perdeu
     tela_perdeu db 'GAME OVER! :(', 0
     enig_2 db 'qualquer coisa',0
 
-pularLinha:
+setarCursor:
     mov dl, 31 ; dl eh a posicao da coluna da tela
     mov dh, 12 ; dh eh a posi da linha na tela
+    ;interrupcao pra ajustar
+    mov ah, 02h
+    mov bh, 0
+    int 10h
+    ret
+
+pularLinha:
+    mov dl, 31 ; dl eh a posicao da coluna da tela
+    add dh, 3; dh eh a posi da linha na tela
     ;interrupcao pra ajustar
     mov ah, 02h
     mov bh, 0
@@ -37,24 +51,29 @@ printarLetra:
 	int 10h
 	ret
 	
-esperarEnter: 
-    call lerLetra
-    cmp al, 13 ;comparar se deu enter  (13 eh o enter)
-        jne chamarEsperarEnter
-        call clear
-    ret
-
-chamarEsperarEnter:
-    call esperarEnter
-    ret
-
 printarFrase:
   	lodsb ; pega o q si ta apontando, bota no al e manda o si pra prox letra
     cmp al, 0
-        je chamarEsperarEnter
+        je esperarEnter
     ;printando letra q leu 
     call printarLetra
     jmp printarFrase
+    ret
+
+printarEnigma:
+  	lodsb ;
+    cmp al, 0
+        je .fim
+    call printarLetra
+    jmp printarEnigma
+    .fim:
+        ret
+
+esperarEnter: 
+    call lerLetra
+    cmp al, 13 ;comparar se deu enter  (13 eh o enter)
+        jne esperarEnter
+        call clear
     ret
 
 zerarRegistradores:
@@ -62,43 +81,54 @@ zerarRegistradores:
     mov ds, ax
     mov es, ax
     ret
-
         
-telaFINAL2:
-    call pularLinha
-	mov si, tela_perdeu 
-   	call printarFrase
    
-guardarResposta:               ; mov di, string
- 	 xor cx, cx          ; zerar contador
+guardarResposta:               
+ 	 xor cx, cx          
  	.for:
  		call lerLetra
- 		cmp al, 0x08      ; backspace
- 		;je .backspace
- 	;cmp al, 0x0d      ; carriage return
- 	je .Done
- 	cmp cl, 10        ; string limit checker
- 	je .for
-    
- 	stosb
+ 	    cmp al, 0x0d    
+ 	        je .terminar
+ 	    cmp cl, 10       
+ 	        je .for
+
+ 	stosb ;usa di pra guardar a entrada
  	inc cl
- 	call putchar
+ 	call printarLetra
     
     jmp .for
-    .backspace:
-      cmp cl, 0       ; is empty?
-      je .for
-      dec di
-      dec cl
-      mov byte[di], 0
-      call delchar
-    jmp .for
-  .Done:
-  mov al, 0
-  stosb
-  call endl
+    .terminar:
+        mov al, 0
+        stosb
+        call setarCursor
   ret
 
+compararResposta: ;vai comparar o que ta no si e no di
+    .for:
+        lodsb
+        cmp al, byte[di]
+            jne telaPerdeu
+        cmp al, 0
+            je telaGanhou
+    jmp .for
+    ret
+  
+telaPerdeu:
+        call esperarEnter
+        call setarCursor
+        mov bl, 4
+	    mov si, tela_perdeu 
+   	    call printarFrase
+        ret
+
+telaGanhou:
+        call esperarEnter
+        call setarCursor
+        mov bl, 10
+	    mov si, tela_venceu
+   	    call printarFrase
+        jmp start
+        ret
 
 start:
   	;zerar registradores
@@ -127,39 +157,22 @@ start:
     ;jmp .ler ;a funcao q eu usar c jmp eu n coloco ret
 
     .telaTitulo:
-	    call pularLinha
+	    call setarCursor
       	mov si, titulo
       	call printarFrase
     	;vai esperar espaço
     
 	;quando clicar no espaço, pular pra telaEnig1
   	.telaEnig1:
-      	call pularLinha
-	  	mov si, enig1
-   		call printarFrase
-
-    .verificarResposta1:
-    ;ler letra
-   	    call lerLetra
-    ;printando letra q leu
-        call printarLetra
-        cmp al, 'f'
-            jne .telaFINAL2
-    
-    ;essas funcoes vao ser chamadas dentro da comparacao das respostas
-    .telaFINAL1:
-        call chamarEsperarEnter
+      	call setarCursor
+	  	mov si, enig1 
+   		call printarEnigma ;printa o e n i g m a
         call pularLinha
-	    mov si, tela_venceu
-   	    call printarFrase
-        jmp start
-
-    .telaFINAL2:
-        call chamarEsperarEnter
-        call pularLinha
-	    mov si, tela_perdeu 
-   	    call printarFrase
-    
+        mov bl, 4
+        call guardarResposta
+        mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
+        mov si, solucaoEnig1
+        call compararResposta
 
     jmp start ;volta para o inicio do jogo
      
