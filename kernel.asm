@@ -5,7 +5,11 @@ data:
 	
 	;Dados do projeto... (onde ficam as declaracoes de variaveis)
     titulo db 'Enigmas Enigmaticos', 0
-    enig1 db 'deciframe ou te devoro k', 0
+    enig1 db 'j_mamjjasond first', 0
+    resposta1 db 'f', 0
+    tela_venceu db 'CONGRATULATIONS! :)', 0
+    tela_perdeu db 'GAME OVER! :(', 0
+    enig_2 db 'qualquer coisa',0
 
 pularLinha:
     mov dl, 31 ; dl eh a posicao da coluna da tela
@@ -48,7 +52,7 @@ printarFrase:
   	lodsb ; pega o q si ta apontando, bota no al e manda o si pra prox letra
     cmp al, 0
         je chamarEsperarEnter
-    ;printando letra q leu
+    ;printando letra q leu 
     call printarLetra
     jmp printarFrase
     ret
@@ -58,6 +62,13 @@ zerarRegistradores:
     mov ds, ax
     mov es, ax
     ret
+
+        
+telaFINAL2:
+    call pularLinha
+	mov si, tela_perdeu 
+   	call printarFrase
+   
 
 start:
   	;zerar registradores
@@ -96,7 +107,31 @@ start:
       	call pularLinha
 	  	mov si, enig1
    		call printarFrase
-        
+
+    .verificarResposta1:
+    ;ler letra
+   	    call lerLetra
+    ;printando letra q leu
+        call printarLetra
+        cmp al, 'f'
+            jne .telaFINAL2
+    
+    ;essas funcoes vao ser chamadas dentro da comparacao das respostas
+    .telaFINAL1:
+        call chamarEsperarEnter
+        call pularLinha
+	    mov si, tela_venceu
+   	    call printarFrase
+        jmp start
+
+    .telaFINAL2:
+        call chamarEsperarEnter
+        call pularLinha
+	    mov si, tela_perdeu 
+   	    call printarFrase
+    
+
+    jmp start ;volta para o inicio do jogo
      
 ;missao: transformar o .pularlinha em uma função call
 jmp $ ; acabar o codigo
