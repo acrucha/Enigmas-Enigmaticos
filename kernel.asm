@@ -69,6 +69,36 @@ telaFINAL2:
 	mov si, tela_perdeu 
    	call printarFrase
    
+guardarResposta:               ; mov di, string
+ 	 xor cx, cx          ; zerar contador
+ 	.for:
+ 		call lerLetra
+ 		cmp al, 0x08      ; backspace
+ 		;je .backspace
+ 	;cmp al, 0x0d      ; carriage return
+ 	je .Done
+ 	cmp cl, 10        ; string limit checker
+ 	je .for
+    
+ 	stosb
+ 	inc cl
+ 	call putchar
+    
+    jmp .for
+    .backspace:
+      cmp cl, 0       ; is empty?
+      je .for
+      dec di
+      dec cl
+      mov byte[di], 0
+      call delchar
+    jmp .for
+  .Done:
+  mov al, 0
+  stosb
+  call endl
+  ret
+
 
 start:
   	;zerar registradores
