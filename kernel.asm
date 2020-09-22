@@ -50,22 +50,13 @@ printarLetra:
 	mov ah, 0xe
 	int 10h
 	ret
-	
-printarFrase:
-  	lodsb ; pega o q si ta apontando, bota no al e manda o si pra prox letra
-    cmp al, 0
-        je esperarEnter
-    ;printando letra q leu 
-    call printarLetra
-    jmp printarFrase
-    ret
 
-printarEnigma:
+printarFrase:
   	lodsb ;
     cmp al, 0
         je .fim
     call printarLetra
-    jmp printarEnigma
+    jmp printarFrase
     .fim:
         ret
 
@@ -82,12 +73,11 @@ zerarRegistradores:
     mov es, ax
     ret
         
-   
 guardarResposta:               
  	 xor cx, cx          
  	.for:
  		call lerLetra
- 	    cmp al, 0x0d    
+ 	    cmp al, 13  
  	        je .terminar
  	    cmp cl, 10       
  	        je .for
@@ -98,11 +88,12 @@ guardarResposta:
     
     jmp .for
     .terminar:
+        dec cl
         mov al, 0
         stosb
-        call setarCursor
-  ret
-
+        ;call endl
+    ret
+    
 compararResposta: ;vai comparar o que ta no si e no di
     .for:
         lodsb
@@ -110,23 +101,28 @@ compararResposta: ;vai comparar o que ta no si e no di
             jne telaPerdeu
         cmp al, 0
             je telaGanhou
+        inc di ;ir pro próximo byte
     jmp .for
     ret
   
 telaPerdeu:
-        call esperarEnter
+        ;call esperarEnter
+        call clear
         call setarCursor
         mov bl, 4
 	    mov si, tela_perdeu 
    	    call printarFrase
+        call esperarEnter
         ret
 
 telaGanhou:
-        call esperarEnter
+        ;call esperarEnter
+        call clear
         call setarCursor
         mov bl, 10
 	    mov si, tela_venceu
    	    call printarFrase
+        call esperarEnter
         jmp start
         ret
 
@@ -147,28 +143,21 @@ start:
     mov al, 13h
     mov bl, 11 ;cor
 
-    ;ler letra
-   	; mov ah, 0
-   	; int 16h
-
-    ;printando letra q leu
-    ;mov ah, 0xe
-    ;int 10h
-    ;jmp .ler ;a funcao q eu usar c jmp eu n coloco ret
 
     .telaTitulo:
 	    call setarCursor
       	mov si, titulo
       	call printarFrase
-    	;vai esperar espaço
+        call esperarEnter
     
-	;quando clicar no espaço, pular pra telaEnig1
+	;quando clicar no enter, pular pra telaEnig1
   	.telaEnig1:
       	call setarCursor
 	  	mov si, enig1 
-   		call printarEnigma ;printa o e n i g m a
+   		call printarFrase
         call pularLinha
         mov bl, 4
+        mov di, resposta
         call guardarResposta
         mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
         mov si, solucaoEnig1
