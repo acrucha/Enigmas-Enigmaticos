@@ -79,14 +79,13 @@ guardarResposta:
  		call lerLetra
  	    cmp al, 13  
  	        je .terminar
- 	    cmp cl, 10       
+ 	    cmp cl, 20   ;tam max de resposta    
  	        je .for
-
- 	stosb ;usa di pra guardar a entrada
- 	inc cl
- 	call printarLetra
-    
+ 	    stosb ;usa di pra guardar a entrada
+ 	    inc cl
+ 	    call printarLetra
     jmp .for
+
     .terminar:
         dec cl
         mov al, 0
@@ -94,7 +93,7 @@ guardarResposta:
         ;call endl
     ret
     
-compararResposta: ;vai comparar o que ta no si e no di
+compararResposta: ;vai comparar o que ta no si(gabarito) e no di(resp usuario)
     .for:
         lodsb
         cmp al, byte[di]
@@ -156,7 +155,7 @@ start:
 	  	mov si, enig1 
    		call printarFrase
         call pularLinha
-        mov bl, 4
+        mov bl, 4         ;muda a cor da letra
         mov di, resposta
         call guardarResposta
         mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
