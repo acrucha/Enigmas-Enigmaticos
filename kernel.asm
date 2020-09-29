@@ -21,8 +21,8 @@ data:
     solucaoEnig1 db 'fevereiro', 0
 
     ;tela enigima 2
-    enig2 db 'ambicodjeof gchoimj',0
-    enig2_1 db 'kslamlnsoipcqhras',0
+    enig2 db 'AMBICODJEOF GCHOIMJ',0
+    enig2_1 db 'KSLAMLNSOIPCQHRAS',0
     solucaoEnig2 db 'miojo com salsicha', 0
 
     ;tela enigma 3
@@ -31,8 +31,8 @@ data:
 
     ;tela enigma 4
     enig4 db '   Alfabeto', 0
-    enig4_1 db '25-6 7+8 22-10 10+10 1/1', 0
-    enig4_2 db '19-4 26-13 18/2 5-2',0
+    enig4_1 db '(25-6) (7+8) (22-10) (10+10) (1/1)', 0
+    enig4_2 db '  (19-4) (26-13) (18/2) (5-2)',0
     ;enig4_2 db '', 0
     solucaoEnig4 db 'solta o mic', 0
 
@@ -81,6 +81,22 @@ pularLinha:
     int 10h
     ret
 
+pularLinhaA:
+    mov dl, 25 ; dl eh a posicao da coluna da tela
+    add dh, 3; dh eh a posi da linha na tela
+    ;interrupcao pra ajustar
+    mov ah, 02h
+    mov bh, 0
+    int 10h
+    ret
+pularLinhaMini:
+    mov dl, 31 ; dl eh a posicao da coluna da tela
+    add dh, 1; dh eh a posi da linha na tela
+    ;interrupcao pra ajustar
+    mov ah, 02h
+    mov bh, 0
+    int 10h
+    ret
 ;função de limpar a tela
 clear:
     mov ah, 0h
@@ -124,6 +140,8 @@ guardarResposta:
  	 xor cx, cx          
  	.for:
  		call lerLetra
+        cmp al, 0x08      ; backspace
+ 		    je .apagar
  	    cmp al, 13  
  	        je .terminar
  	    cmp cl, 20   ;tam max de resposta    
@@ -132,14 +150,29 @@ guardarResposta:
  	    inc cl
  	    call printarLetra
     jmp .for
-    
+    .apagar:
+      cmp cl, 0       
+      je .for
+      dec di
+      dec cl
+      mov byte[di], 0
+      call apagarLetra
+    jmp .for
     .terminar:
         dec cl
         mov al, 0
         stosb
-        ;call endl
     ret
-    
+
+apagarLetra:
+	mov al, 0x08          ; backspace
+ 	call printarLetra
+ 	mov al, ' '
+ 	call printarLetra
+ 	mov al, 0x08          ; backspace
+ 	call printarLetra
+ 	ret
+
 compararResposta: ;vai comparar o que ta no si(gabarito) e no di(resp usuario)
     .for:
         lodsb
@@ -272,7 +305,7 @@ start:
     .telaEnig3:
         call clear
       	mov dl, 25 ; dl eh a posicao da coluna da tela
-        mov dh, 25; dh eh a posi da linha na tela
+        mov dh, 12; dh eh a posi da linha na tela
         ;interrupcao pra ajustar
         mov ah, 02h
         mov bh, 0
@@ -281,7 +314,7 @@ start:
         mov bl, 11; volta a cor pra azul
 	  	mov si, enig3
    		call printarFrase
-        call pularLinha
+        call pularLinhaA
         mov bl, 4 ;muda a cor da letra pra vermelho
         mov di, resposta
         call guardarResposta
@@ -295,13 +328,13 @@ start:
         mov bl, 11; volta a cor pra azul
 	  	mov si, enig4
    		call printarFrase
-        call pularLinha
+        call pularLinhaA
         mov si, enig4_1
         call printarFrase
-        call pularLinha
+        call pularLinhaA
         mov si, enig4_2
         call printarFrase
-        call pularLinha
+        call pularLinhaA
         mov bl, 4 ;muda a cor da letra pra vermelho
         mov di, resposta
         call guardarResposta
@@ -315,15 +348,10 @@ start:
         mov bl, 11
 	  	mov si, enig5 
    		call printarFrase
-        mov dl, 31 ; dl eh a posicao da coluna da tela
-        add dh, 1; dh eh a posi da linha na tela
-        ;interrupcao pra ajustar
-        mov ah, 02h
-        mov bh, 0
-        int 10h
+        call pularLinhaMini
         mov si, enig5_1 
    		call printarFrase
-        call pularLinha
+        call pularLinhaA
         mov bl, 4         ;muda a cor da letra
         mov di, resposta
         call guardarResposta
