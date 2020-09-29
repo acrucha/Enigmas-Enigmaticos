@@ -8,6 +8,13 @@ data:
     ;tela inicial
     titulo db 'Enigmas Enigmaticos', 0
     aperteEnter db 'aperte Enter para continuar', 0
+    ;tela de instrução
+    instrucoes db 'Dicas de como jogar:', 0
+    instrucao_0 db '1.Apos cada resposta aperte enter para continuar.', 0
+    instrucao_1 db '2.Observe atentamente cada dica.', 0
+    instrucao_2 db '3.Erros nao serao permitidos.', 0
+    instrucao_3 db '4.Lembre-se: o google eh seu amigo!!!!!!!!!!!!!', 0
+    instrucao_4 db '5.Boa sorte S2', 0
 
     ;tela enigma 1
     enig1 db 'j_mamjjasond', 0
@@ -22,6 +29,8 @@ data:
     enig3 db 'www aa w dd ww d ss dd s aa sss a',0
     solucaoEnig3 db 'cruz', 0
 
+    ;tela enigma 4
+    
     ;tela venceu
     tela_venceu db 'CONGRATULATIONS! :)', 0
 
@@ -46,7 +55,14 @@ setarEnter:
     mov bh, 0
     int 10h
     ret
-
+pularLinhaI:
+    mov dl, 12 ; dl eh a posicao da coluna da tela
+    add dh, 2; dh eh a posi da linha na tela
+    ;interrupcao pra ajustar
+    mov ah, 02h
+    mov bh, 0
+    int 10h
+    ret
 pularLinha:
     mov dl, 31 ; dl eh a posicao da coluna da tela
     add dh, 3; dh eh a posi da linha na tela
@@ -184,6 +200,37 @@ start:
         call printarFrase
         call esperarEnter
     
+    .telaInstrucao:
+        call clear
+	    mov dl, 12 ; dl eh a posicao da coluna da tela
+        mov dh, 5 ; dh eh a posi da linha na tela
+        ;interrupcao pra ajustar
+        mov ah, 02h
+        mov bh, 0
+        int 10h
+        mov si, instrucoes
+        call printarFrase
+        call pularLinhaI
+        call pularLinhaI
+      	mov si, instrucao_0
+      	call printarFrase
+        call pularLinhaI
+        mov si, instrucao_1
+        call printarFrase
+        call pularLinhaI
+        mov si, instrucao_2
+        call printarFrase
+        call pularLinhaI
+        mov si, instrucao_3
+        call printarFrase
+        call pularLinhaI
+        mov si , instrucao_4
+        call printarFrase
+        mov si, aperteEnter
+        call setarEnter
+        call printarFrase
+        call esperarEnter
+    
 	;quando clicar no enter, pular pra telaEnig1
   	.telaEnig1:
       	call setarCursor
@@ -227,7 +274,18 @@ start:
         mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
         mov si, solucaoEnig3
         call compararResposta
- 
+    .telaEnig4:
+        call clear 
+        mov bl, 11; volta a cor pra azul
+	  	mov si, enig4
+   		call printarFrase
+        call pularLinha
+        mov bl, 4 ;muda a cor da letra pra vermelho
+        mov di, resposta
+        call guardarResposta
+        mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
+        mov si, solucaoEnig3
+        call compararResposta
     call telaGanhou
     jmp start ;volta para o inicio do jogo
 
