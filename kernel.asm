@@ -7,6 +7,8 @@ data:
     
     ;tela inicial
     titulo db 'Enigmas Enigmaticos', 0
+    aperteEnter db 'aperte Enter para continuar', 0
+
     ;tela enigma 1
     enig1 db 'j_mamjjasond', 0
     solucaoEnig1 db 'fevereiro', 0
@@ -15,8 +17,14 @@ data:
     enig2 db 'ambicodjeof gchoimj',0
     enig2_1 db 'kslamlnsoipcqhras',0
     solucaoEnig2 db 'miojo com salsicha', 0
+
+    ;tela enigma 3
+    enig3 db 'www aa w dd ww d ss dd s aa sss a',0
+    solucaoEnig3 db 'cruz', 0
+
     ;tela venceu
     tela_venceu db 'CONGRATULATIONS! :)', 0
+
     ;tela perdeu
     tela_perdeu db 'GAME OVER! :(', 0
     
@@ -24,6 +32,15 @@ data:
 setarCursor:
     mov dl, 31 ; dl eh a posicao da coluna da tela
     mov dh, 12 ; dh eh a posi da linha na tela
+    ;interrupcao pra ajustar
+    mov ah, 02h
+    mov bh, 0
+    int 10h
+    ret
+
+setarEnter:
+    mov dl, 27 ; dl eh a posicao da coluna da tela
+    mov dh, 25 ; dh eh a posi da linha na tela
     ;interrupcao pra ajustar
     mov ah, 02h
     mov bh, 0
@@ -119,7 +136,11 @@ telaPerdeu:
         mov bl, 4
 	    mov si, tela_perdeu 
    	    call printarFrase
+        mov si, aperteEnter
+        call setarEnter
+        call printarFrase
         call esperarEnter
+        jmp start
         ret
 
 telaGanhou:
@@ -129,6 +150,9 @@ telaGanhou:
         mov bl, 10
 	    mov si, tela_venceu
    	    call printarFrase
+        mov si, aperteEnter
+        call setarEnter
+        call printarFrase
         call esperarEnter
         jmp start
         ret
@@ -155,6 +179,9 @@ start:
 	    call setarCursor
       	mov si, titulo
       	call printarFrase
+        mov si, aperteEnter
+        call setarEnter
+        call printarFrase
         call esperarEnter
     
 	;quando clicar no enter, pular pra telaEnig1
@@ -186,10 +213,22 @@ start:
         mov si, solucaoEnig2
         call compararResposta
 
-    ;.tela...
+    .telaEnig3:
+        call clear
+      	call setarCursor
 
-
-    ;call telaGanhou
+        mov bl, 11; volta a cor pra azul
+	  	mov si, enig3
+   		call printarFrase
+        call pularLinha
+        mov bl, 4 ;muda a cor da letra pra vermelho
+        mov di, resposta
+        call guardarResposta
+        mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
+        mov si, solucaoEnig3
+        call compararResposta
+ 
+    call telaGanhou
     jmp start ;volta para o inicio do jogo
 
 
