@@ -30,14 +30,23 @@ data:
     solucaoEnig3 db 'cruz', 0
 
     ;tela enigma 4
-    
+    enig4 db '   Alfabeto', 0
+    enig4_1 db '25-6 7+8 22-10 10+10 1/1', 0
+    enig4_2 db '19-4 26-13 18/2 5-2',0
+    ;enig4_2 db '', 0
+    solucaoEnig4 db 'solta o mic', 0
+
+    ;tela enigma 5 
+    enig5 db 'X 0 X 11 X 10 X 4 X 16 X  19  X', 0
+    enig5_1 db '8 9 8 -2 7 -1 6 5 4 -7 1 -10 -4', 0
+    solucaoEnig5 db 'fibonacci', 0
+
     ;tela venceu
     tela_venceu db 'CONGRATULATIONS! :)', 0
 
     ;tela perdeu
     tela_perdeu db 'GAME OVER! :(', 0
     
-
 setarCursor:
     mov dl, 31 ; dl eh a posicao da coluna da tela
     mov dh, 12 ; dh eh a posi da linha na tela
@@ -123,7 +132,7 @@ guardarResposta:
  	    inc cl
  	    call printarLetra
     jmp .for
-
+    
     .terminar:
         dec cl
         mov al, 0
@@ -262,7 +271,12 @@ start:
 
     .telaEnig3:
         call clear
-      	call setarCursor
+      	mov dl, 25 ; dl eh a posicao da coluna da tela
+        mov dh, 25; dh eh a posi da linha na tela
+        ;interrupcao pra ajustar
+        mov ah, 02h
+        mov bh, 0
+        int 10h
 
         mov bl, 11; volta a cor pra azul
 	  	mov si, enig3
@@ -274,18 +288,49 @@ start:
         mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
         mov si, solucaoEnig3
         call compararResposta
+
     .telaEnig4:
         call clear 
+        call setarCursor
         mov bl, 11; volta a cor pra azul
 	  	mov si, enig4
    		call printarFrase
+        call pularLinha
+        mov si, enig4_1
+        call printarFrase
+        call pularLinha
+        mov si, enig4_2
+        call printarFrase
         call pularLinha
         mov bl, 4 ;muda a cor da letra pra vermelho
         mov di, resposta
         call guardarResposta
         mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
-        mov si, solucaoEnig3
+        mov si, solucaoEnig4
         call compararResposta
+
+    .telaEnig5:
+        call clear
+      	call setarCursor
+        mov bl, 11
+	  	mov si, enig5 
+   		call printarFrase
+        mov dl, 31 ; dl eh a posicao da coluna da tela
+        add dh, 1; dh eh a posi da linha na tela
+        ;interrupcao pra ajustar
+        mov ah, 02h
+        mov bh, 0
+        int 10h
+        mov si, enig5_1 
+   		call printarFrase
+        call pularLinha
+        mov bl, 4         ;muda a cor da letra
+        mov di, resposta
+        call guardarResposta
+        mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
+        mov si, solucaoEnig5
+        call compararResposta
+
     call telaGanhou
     jmp start ;volta para o inicio do jogo
 
