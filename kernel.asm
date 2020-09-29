@@ -7,14 +7,19 @@ data:
     
     ;tela inicial
     titulo db 'Enigmas Enigmaticos', 0
-    ;tela 1 enigma
+    ;tela enigma 1
     enig1 db 'j_mamjjasond', 0
     solucaoEnig1 db 'fevereiro', 0
+
+    ;tela enigima 2
+    enig2 db 'ambicodjeof gchoimj',0
+    enig2_1 db 'kslamlnsoipcqhras',0
+    solucaoEnig2 db 'miojo com salsicha', 0
     ;tela venceu
     tela_venceu db 'CONGRATULATIONS! :)', 0
     ;tela perdeu
     tela_perdeu db 'GAME OVER! :(', 0
-    enig_2 db 'qualquer coisa',0
+    
 
 setarCursor:
     mov dl, 31 ; dl eh a posicao da coluna da tela
@@ -99,9 +104,12 @@ compararResposta: ;vai comparar o que ta no si(gabarito) e no di(resp usuario)
         cmp al, byte[di]
             jne telaPerdeu
         cmp al, 0
-            je telaGanhou
+            je .sair
         inc di ;ir pro próximo byte
     jmp .for
+
+    .sair
+
     ret
   
 telaPerdeu:
@@ -162,7 +170,29 @@ start:
         mov si, solucaoEnig1
         call compararResposta
 
+    .telaEnig2:
+      	call setarCursor
+        mov bl, 11
+	  	mov si, enig2 
+   		call printarFrase
+        call pularLinha
+        mov si, enig2_1 
+   		call printarFrase
+        call pularLinha
+        mov bl, 4         ;muda a cor da letra
+        mov di, resposta
+        call guardarResposta
+        mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
+        mov si, solucaoEnig2
+        call compararResposta
+
+    ;.tela...
+
+
+    ;call telaGanhou
     jmp start ;volta para o inicio do jogo
+
+
      
 ;missao: transformar o .pularlinha em uma função call
 jmp $ ; acabar o codigo
