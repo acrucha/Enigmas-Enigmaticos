@@ -3,11 +3,13 @@ jmp 0x0000:start
 
 data:
 	
-	resposta times 20 db 0 ;declarei a string q vai ser a resposta do cara
+	;string que vai guardar a resposta do usuário
+    resposta times 20 db 0 
     
     ;tela inicial
     titulo db 'Enigmas Enigmaticos', 0
     aperteEnter db 'aperte Enter para continuar', 0
+
     ;tela de instrução
     instrucoes db 'Dicas de como jogar:', 0
     instrucao_0 db '1.Apos cada resposta aperte enter para continuar.', 0
@@ -31,8 +33,8 @@ data:
 
     ;tela enigma 4
     enig4 db '   Alfabeto', 0
-    enig4_1 db '(25-6) (7+8) (22-10) (10+10) (1/1)', 0
-    enig4_2 db '  (19-4) (26-13) (18/2) (5-2)',0
+    enig4_1 db '  (25-6) (7+8) (22-10) (10+10) (1/1)', 0
+    enig4_2 db '      (19-4) (26-13) (18/2) (5-2)',0
     ;enig4_2 db '', 0
     solucaoEnig4 db 'solta o mic', 0
 
@@ -46,59 +48,42 @@ data:
 
     ;tela perdeu
     tela_perdeu db 'GAME OVER! :(', 0
-    
-setarCursor:
-    mov dl, 31 ; dl eh a posicao da coluna da tela
-    mov dh, 12 ; dh eh a posi da linha na tela
-    ;interrupcao pra ajustar
+
+ajustarVideo:;atualiza na tela as mudanças de video (interrupção)
     mov ah, 02h
     mov bh, 0
-    int 10h
+    int 10h ;interrupção de video
+    ret
+ 
+setarCursor: ;seta o cursor no centro da tela
+    mov dl, 31 ; posição da coluna da tela
+    mov dh, 12 ; posição da linha na tela
+    call ajustarVideo
     ret
 
-setarEnter:
-    mov dl, 27 ; dl eh a posicao da coluna da tela
-    mov dh, 25 ; dh eh a posi da linha na tela
-    ;interrupcao pra ajustar
-    mov ah, 02h
-    mov bh, 0
-    int 10h
+setarCursor2:
+    mov dl, 25 ; posição da coluna da tela
+    mov dh, 12 ; posição da linha na tela
+    call ajustarVideo
     ret
+
+setarEnter: ;seta o cursor no fim da tela
+    mov dl, 27 ; posição da coluna na tela
+    mov dh, 25 ; posição da linha na tela
+    call ajustarVideo
+    ret
+
 pularLinhaI:
-    mov dl, 12 ; dl eh a posicao da coluna da tela
-    add dh, 2; dh eh a posi da linha na tela
-    ;interrupcao pra ajustar
-    mov ah, 02h
-    mov bh, 0
-    int 10h
-    ret
-pularLinha:
-    mov dl, 31 ; dl eh a posicao da coluna da tela
-    add dh, 3; dh eh a posi da linha na tela
-    ;interrupcao pra ajustar
-    mov ah, 02h
-    mov bh, 0
-    int 10h
+    add dh, 2  ; posição da linha na tela
+    call ajustarVideo
     ret
 
-pularLinhaA:
-    mov dl, 25 ; dl eh a posicao da coluna da tela
-    add dh, 3; dh eh a posi da linha na tela
-    ;interrupcao pra ajustar
-    mov ah, 02h
-    mov bh, 0
-    int 10h
+pularLinha:
+    add dh, 3  ; aumenta a posição da linha na tela
+    call ajustarVideo
     ret
-pularLinhaMini:
-    mov dl, 31 ; dl eh a posicao da coluna da tela
-    add dh, 1; dh eh a posi da linha na tela
-    ;interrupcao pra ajustar
-    mov ah, 02h
-    mov bh, 0
-    int 10h
-    ret
-;função de limpar a tela
-clear:
+
+clear: ;limpa a tela
     mov ah, 0h
     mov al, 12h
     int 10h
@@ -115,8 +100,8 @@ printarLetra:
 	ret
 
 printarFrase:
-  	lodsb ;
-    cmp al, 0
+  	lodsb ; move do si para al
+    cmp al, 0 ;se a string chegar ao fim
         je .fim
     call printarLetra
     jmp printarFrase
@@ -125,7 +110,7 @@ printarFrase:
 
 esperarEnter: 
     call lerLetra
-    cmp al, 13 ;comparar se deu enter  (13 eh o enter)
+    cmp al, 13 ; comparar se usuário deu enter (13 é o enter)
         jne esperarEnter
         call clear
     ret
@@ -137,24 +122,24 @@ zerarRegistradores:
     ret
         
 guardarResposta:               
- 	 xor cx, cx          
+ 	 xor cx, cx     ; zera registrador         
  	.for:
  		call lerLetra
-        cmp al, 0x08      ; backspace
+        cmp al, 0x08; backspace
  		    je .apagar
- 	    cmp al, 13  
+ 	    cmp al, 13  ; enter
  	        je .terminar
- 	    cmp cl, 20   ;tam max de resposta    
+ 	    cmp cl, 20  ; tam max de resposta    
  	        je .for
- 	    stosb ;usa di pra guardar a entrada
+ 	    stosb       ; usa di pra guardar a entrada
  	    inc cl
  	    call printarLetra
     jmp .for
     .apagar:
-      cmp cl, 0       
-      je .for
-      dec di
-      dec cl
+      cmp cl, 0     ; se a resposta estiver vazia    
+        je .for
+      dec di        ; volta um byte
+      dec cl        
       mov byte[di], 0
       call apagarLetra
     jmp .for
@@ -169,7 +154,7 @@ apagarLetra:
  	call printarLetra
  	mov al, ' '
  	call printarLetra
- 	mov al, 0x08          ; backspace
+ 	mov al, 0x08         
  	call printarLetra
  	ret
 
@@ -184,53 +169,43 @@ compararResposta: ;vai comparar o que ta no si(gabarito) e no di(resp usuario)
     jmp .for
 
     .sair
-
-    ret
+        ret
   
 telaPerdeu:
-        ;call esperarEnter
-        call clear
-        call setarCursor
-        mov bl, 4
-	    mov si, tela_perdeu 
-   	    call printarFrase
-        mov si, aperteEnter
-        call setarEnter
-        call printarFrase
-        call esperarEnter
-        jmp start
-        ret
+    call clear
+    call setarCursor
+    mov bl, 4 ; letra vermelha
+	mov si, tela_perdeu 
+   	call printarFrase
+    mov si, aperteEnter
+    call setarEnter
+    call printarFrase
+    call esperarEnter
+    jmp start ; volta para o começo do jogo depois do Enter
+    ret
 
 telaGanhou:
-        ;call esperarEnter
-        call clear
-        call setarCursor
-        mov bl, 10
-	    mov si, tela_venceu
-   	    call printarFrase
-        mov si, aperteEnter
-        call setarEnter
-        call printarFrase
-        call esperarEnter
-        jmp start
-        ret
+    call clear
+    call setarCursor
+    mov bl, 10 ; letra verde
+	mov si, tela_venceu
+   	call printarFrase
+    mov si, aperteEnter
+    call setarEnter
+    call printarFrase
+    call esperarEnter
+    jmp start
+    ret
 
 start:
   	;zerar registradores
     call zerarRegistradores
-
     call clear
 
-    ;como botei o modo 13, ele vai setar a cor da letra
-    mov ah, 0bh
-    mov bh, 0
-    mov bl, 00 ; cor
-    int 10h ; 
-
-    ;setando a cor da letra / o 13 seta a cor da letra
+    ;setando modo video
     mov ah, 0h
     mov al, 13h
-    mov bl, 11 ;cor
+    mov bl, 11 ; letra azul
 
 
     .telaTitulo:
@@ -244,12 +219,10 @@ start:
     
     .telaInstrucao:
         call clear
-	    mov dl, 12 ; dl eh a posicao da coluna da tela
-        mov dh, 5 ; dh eh a posi da linha na tela
-        ;interrupcao pra ajustar
-        mov ah, 02h
-        mov bh, 0
-        int 10h
+	    mov dl, 12 ; posição da coluna na tela
+        mov dh, 5 ; posição da linha na tela
+        call ajustarVideo
+        
         mov si, instrucoes
         call printarFrase
         call pularLinhaI
@@ -271,15 +244,15 @@ start:
         mov si, aperteEnter
         call setarEnter
         call printarFrase
+
         call esperarEnter
     
-	;quando clicar no enter, pular pra telaEnig1
   	.telaEnig1:
       	call setarCursor
 	  	mov si, enig1 
    		call printarFrase
-        call pularLinha
-        mov bl, 4         ;muda a cor da letra
+        call pularLinha ;centro +3
+        mov bl, 4         ;letra vermelha
         mov di, resposta
         call guardarResposta
         mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
@@ -304,17 +277,11 @@ start:
 
     .telaEnig3:
         call clear
-      	mov dl, 25 ; dl eh a posicao da coluna da tela
-        mov dh, 12; dh eh a posi da linha na tela
-        ;interrupcao pra ajustar
-        mov ah, 02h
-        mov bh, 0
-        int 10h
-
+      	call setarCursor2
         mov bl, 11; volta a cor pra azul
 	  	mov si, enig3
    		call printarFrase
-        call pularLinhaA
+        call pularLinha
         mov bl, 4 ;muda a cor da letra pra vermelho
         mov di, resposta
         call guardarResposta
@@ -325,17 +292,18 @@ start:
     .telaEnig4:
         call clear 
         call setarCursor
-        mov bl, 11; volta a cor pra azul
+        mov bl, 11      ; volta a cor pra azul
 	  	mov si, enig4
    		call printarFrase
-        call pularLinhaA
+        mov dl, 20      ; altero a coluna
+        call pularLinha
         mov si, enig4_1
         call printarFrase
-        call pularLinhaA
+        call pularLinha
         mov si, enig4_2
         call printarFrase
-        call pularLinhaA
-        mov bl, 4 ;muda a cor da letra pra vermelho
+        call pularLinha
+        mov bl, 4        ; muda a cor da letra pra vermelho
         mov di, resposta
         call guardarResposta
         mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
@@ -344,25 +312,22 @@ start:
 
     .telaEnig5:
         call clear
-      	call setarCursor
-        mov bl, 11
+        call setarCursor2
+        mov bl, 11       ; letra azul
 	  	mov si, enig5 
    		call printarFrase
-        call pularLinhaMini
+        add dh, 1
+        call ajustarVideo
         mov si, enig5_1 
    		call printarFrase
-        call pularLinhaA
-        mov bl, 4         ;muda a cor da letra
+        call pularLinha
+        mov bl, 4        ; muda a cor da letra pra vermelho
         mov di, resposta
         call guardarResposta
-        mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
+        mov di, resposta ; apontando onde deve guardar o valor de di (a resposta)
         mov si, solucaoEnig5
         call compararResposta
 
     call telaGanhou
-    jmp start ;volta para o inicio do jogo
 
-
-     
-;missao: transformar o .pularlinha em uma função call
-jmp $ ; acabar o codigo
+jmp $
