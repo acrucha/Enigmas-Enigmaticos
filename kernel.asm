@@ -24,7 +24,7 @@ data:
 
     ;tela enigima 2
     enig2 db 'AMBICODJEOF GCHOIMJ',0
-    enig2_1 db 'KSLAMLNSOIPCQHRAS',0
+    enig2_1 db ' KSLAMLNSOIPCQHRAS',0
     solucaoEnig2 db 'miojo com salsicha', 0
 
     ;tela enigma 3
@@ -34,7 +34,7 @@ data:
     ;tela enigma 4
     enig4 db '   Alfabeto', 0
     enig4_1 db '  (25-6) (7+8) (22-10) (10+10) (1/1)', 0
-    enig4_2 db '      (19-4) (26-13) (18/2) (5-2)',0
+    enig4_2 db '    (19-4)     (26-13) (18/2) (5-2)',0
     ;enig4_2 db '', 0
     solucaoEnig4 db 'solta o mic', 0
 
@@ -43,11 +43,15 @@ data:
     enig5_1 db '8 9 8 -2 7 -1 6 5 4 -7 1 -10 -4', 0
     solucaoEnig5 db 'fibonacci', 0
 
+    ;tela enigma 6
+    enig6 db '-.-. .- .-. .-. --- / -.. --- / --- ...- ---', 0
+    solucaoEnig6 db 'carro do ovo', 0
+
     ;tela venceu
     tela_venceu db 'CONGRATULATIONS! :)', 0
 
     ;tela perdeu
-    tela_perdeu db 'GAME OVER! :(', 0
+    tela_perdeu db '   GAME OVER! :(', 0
 
 ajustarVideo:;atualiza na tela as mudanças de video (interrupção)
     mov ah, 02h
@@ -130,7 +134,7 @@ guardarResposta:
  	    cmp al, 13  ; enter
  	        je .terminar
  	    cmp cl, 20  ; tam max de resposta    
- 	        je .for
+ 	        je .for ; não permite que letra seja salva
  	    stosb       ; usa di pra guardar a entrada
  	    inc cl
  	    call printarLetra
@@ -251,7 +255,8 @@ start:
       	call setarCursor
 	  	mov si, enig1 
    		call printarFrase
-        call pularLinha ;centro +3
+        inc dl ; incremento a colula (centralizar resposta)
+        call pularLinha
         mov bl, 4         ;letra vermelha
         mov di, resposta
         call guardarResposta
@@ -268,7 +273,7 @@ start:
         mov si, enig2_1 
    		call printarFrase
         call pularLinha
-        mov bl, 4         ;muda a cor da letra
+        mov bl, 4         ;muda a cor da letra pra vermelho
         mov di, resposta
         call guardarResposta
         mov di, resposta ;apontando onde deve guardar o valor de di (a resposta)
@@ -281,6 +286,7 @@ start:
         mov bl, 11; volta a cor pra azul
 	  	mov si, enig3
    		call printarFrase
+        mov dl, 39 ; mudando a coluna para centralizar a resposta
         call pularLinha
         mov bl, 4 ;muda a cor da letra pra vermelho
         mov di, resposta
@@ -302,6 +308,7 @@ start:
         call pularLinha
         mov si, enig4_2
         call printarFrase
+        mov dl, 33; mudando a coluna (centralizar resposta)
         call pularLinha
         mov bl, 4        ; muda a cor da letra pra vermelho
         mov di, resposta
@@ -320,6 +327,7 @@ start:
         call ajustarVideo
         mov si, enig5_1 
    		call printarFrase
+        add dl, 11        ; aumentando a coluna (centralizar resposta)
         call pularLinha
         mov bl, 4        ; muda a cor da letra pra vermelho
         mov di, resposta
@@ -328,6 +336,22 @@ start:
         mov si, solucaoEnig5
         call compararResposta
 
+    .telaEnig6:
+        call clear
+        mov dl, 20 ; posição da coluna da tela
+        mov dh, 13 ; posição da linha na tela
+        call ajustarVideo
+        mov bl, 11       ; letra azul
+	  	mov si, enig6 
+   		call printarFrase
+        add dl, 15       ; aumentando a coluna (centralizar resposta)
+        call pularLinha
+        mov bl, 4        ; muda a cor da letra pra vermelho
+        mov di, resposta
+        call guardarResposta
+        mov di, resposta ; apontando onde deve guardar o valor de di (a resposta)
+        mov si, solucaoEnig6
+        call compararResposta
     call telaGanhou
 
 jmp $
